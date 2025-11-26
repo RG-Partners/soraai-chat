@@ -1,0 +1,158 @@
+(base) princemensah@princemensah-macbook-pro Perplexica % pwd  
+/Users/princemensah/Documents/Perplexica
+(base) princemensah@princemensah-macbook-pro Perplexica % pnpm dev
+
+> perplexica-frontend@1.11.2 dev /Users/princemensah/Documents/Perplexica
+> next dev
+
+ ⚠ Port 3000 is in use by process 7682, using available port 3001 instead.
+   ▲ Next.js 15.5.6
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.1.64:3001
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Compiled /instrumentation in 93ms (39 modules)
+ℹ Running database migrations...                                                                                          perplexica 1:41:41 AM
+⏳ Running PostgreSQL migrations...
+✅ PostgreSQL migrations completed in 2997 ms
+🚀 DB migration completed
+✔ Database migrations completed successfully                                                                              perplexica 1:41:44 AM
+ ✓ Ready in 6s
+ ✓ Compiled /middleware in 227ms (120 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 7.9s (12225 modules)
+ GET / 307 in 8825ms
+ ○ Compiling /sign-in ...
+ ✓ Compiled /sign-in in 2.4s (12231 modules)
+ GET /sign-in 200 in 4120ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 1332ms (12252 modules)
+ GET /favicon.ico 200 in 1439ms
+ GET /manifest.webmanifest 200 in 1451ms
+ GET / 200 in 2887ms
+ GET /manifest.webmanifest 200 in 58ms
+ ○ Compiling /api/providers ...
+ ✓ Compiled /api/providers in 1489ms (12257 modules)
+ GET /favicon.ico 200 in 1555ms
+ GET /api/providers 200 in 3585ms
+ GET /api/providers 200 in 68ms
+ ○ Compiling /api/discover ...
+ GET /api/auth/get-session 200 in 4474ms
+ ✓ Compiled /_not-found in 3.6s (12277 modules)
+ GET /weather-ico/.svg 404 in 2479ms
+ GET /api/providers 200 in 4437ms
+ GET /api/auth/get-session 200 in 1603ms
+
+ ERROR  Failed to resolve discover feed. fetch failed                                                                    api:discover 1:42:29 AM
+
+    at node:internal/deps/undici/undici:15433:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async searchSearxng (webpack-internal:///(rsc)/./src/lib/searxng.ts:21:17)
+    at async GET (webpack-internal:///(rsc)/./src/app/api/discover/route.ts:159:21)
+    at async AppRouteRouteModule.do (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:5:38696)
+    at async AppRouteRouteModule.handle (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:5:45978)
+    at async responseGenerator (webpack-internal:///(rsc)/./node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js?name=app%2Fapi%2Fdiscover%2Froute&page=%2Fapi%2Fdiscover%2Froute&appPaths=&pagePath=private-next-app-dir%2Fapi%2Fdiscover%2Froute.ts&appDir=%2FUsers%2Fprincemensah%2FDocuments%2FPerplexica%2Fsrc%2Fapp&pageExtensions=tsx&pageExtensions=ts&pageExtensions=jsx&pageExtensions=js&rootDir=%2FUsers%2Fprincemensah%2FDocuments%2FPerplexica&isDev=true&tsconfigPath=tsconfig.json&basePath=&assetPrefix=&nextConfigOutput=&preferredRegion=&middlewareConfig=e30%3D&isGlobalNotFoundEnabled=!:206:38)
+    at async AppRouteRouteModule.handleResponse (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:1:187565)
+    at async handleResponse (webpack-internal:///(rsc)/./node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js?name=app%2Fapi%2Fdiscover%2Froute&page=%2Fapi%2Fdiscover%2Froute&appPaths=&pagePath=private-next-app-dir%2Fapi%2Fdiscover%2Froute.ts&appDir=%2FUsers%2Fprincemensah%2FDocuments%2FPerplexica%2Fsrc%2Fapp&pageExtensions=tsx&pageExtensions=ts&pageExtensions=jsx&pageExtensions=js&rootDir=%2FUsers%2Fprincemensah%2FDocuments%2FPerplexica&isDev=true&tsconfigPath=tsconfig.json&basePath=&assetPrefix=&nextConfigOutput=&preferredRegion=&middlewareConfig=e30%3D&isGlobalNotFoundEnabled=!:268:32)
+    at async handler (webpack-internal:///(rsc)/./node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js?name=app%2Fapi%2Fdiscover%2Froute&page=%2Fapi%2Fdiscover%2Froute&appPaths=&pagePath=private-next-app-dir%2Fapi%2Fdiscover%2Froute.ts&appDir=%2FUsers%2Fprincemensah%2FDocuments%2FPerplexica%2Fsrc%2Fapp&pageExtensions=tsx&pageExtensions=ts&pageExtensions=jsx&pageExtensions=js&rootDir=%2FUsers%2Fprincemensah%2FDocuments%2FPerplexica&isDev=true&tsconfigPath=tsconfig.json&basePath=&assetPrefix=&nextConfigOutput=&preferredRegion=&middlewareConfig=e30%3D&isGlobalNotFoundEnabled=!:320:13)
+    at async DevServer.renderToResponseWithComponentsImpl (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1422:9)
+    at async DevServer.renderPageComponent (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1474:24)
+    at async DevServer.renderToResponseImpl (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1514:32)
+    at async DevServer.pipeImpl (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1025:25)
+    at async NextNodeServer.handleCatchallRenderRequest (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:393:17)
+    at async DevServer.handleRequestImpl (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:916:17)
+    at async node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/next-dev-server.js:399:20
+    at async Span.traceAsyncFn (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/next-dev-server.js:395:24)
+    at async invokeRender (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js:240:21)
+    at async handleRequest (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js:437:24)
+    at async requestHandlerImpl (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js:485:13)
+    at async Server.requestListener (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js:226:13)
+
+  [cause]: 
+
+      at internalConnectMultiple (node:net:1134:18)
+      at afterConnectMultiple (node:net:1715:7)
+      at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+
+ GET /api/discover?mode=preview 500 in 5171ms
+
+ ERROR  Failed to resolve discover feed. fetch failed                                                                    api:discover 1:42:29 AM
+
+    at node:internal/deps/undici/undici:15433:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async searchSearxng (webpack-internal:///(rsc)/./src/lib/searxng.ts:21:17)
+    at async GET (webpack-internal:///(rsc)/./src/app/api/discover/route.ts:159:21)
+    at async AppRouteRouteModule.do (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:5:38696)
+    at async AppRouteRouteModule.handle (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:5:45978)
+    at async responseGenerator (webpack-internal:///(rsc)/./node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js?name=app%2Fapi%2Fdiscover%2Froute&page=%2Fapi%2Fdiscover%2Froute&appPaths=&pagePath=private-next-app-dir%2Fapi%2Fdiscover%2Froute.ts&appDir=%2FUsers%2Fprincemensah%2FDocuments%2FPerplexica%2Fsrc%2Fapp&pageExtensions=tsx&pageExtensions=ts&pageExtensions=jsx&pageExtensions=js&rootDir=%2FUsers%2Fprincemensah%2FDocuments%2FPerplexica&isDev=true&tsconfigPath=tsconfig.json&basePath=&assetPrefix=&nextConfigOutput=&preferredRegion=&middlewareConfig=e30%3D&isGlobalNotFoundEnabled=!:206:38)
+    at async AppRouteRouteModule.handleResponse (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:1:187565)
+    at async handleResponse (webpack-internal:///(rsc)/./node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js?name=app%2Fapi%2Fdiscover%2Froute&page=%2Fapi%2Fdiscover%2Froute&appPaths=&pagePath=private-next-app-dir%2Fapi%2Fdiscover%2Froute.ts&appDir=%2FUsers%2Fprincemensah%2FDocuments%2FPerplexica%2Fsrc%2Fapp&pageExtensions=tsx&pageExtensions=ts&pageExtensions=jsx&pageExtensions=js&rootDir=%2FUsers%2Fprincemensah%2FDocuments%2FPerplexica&isDev=true&tsconfigPath=tsconfig.json&basePath=&assetPrefix=&nextConfigOutput=&preferredRegion=&middlewareConfig=e30%3D&isGlobalNotFoundEnabled=!:268:32)
+    at async handler (webpack-internal:///(rsc)/./node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js?name=app%2Fapi%2Fdiscover%2Froute&page=%2Fapi%2Fdiscover%2Froute&appPaths=&pagePath=private-next-app-dir%2Fapi%2Fdiscover%2Froute.ts&appDir=%2FUsers%2Fprincemensah%2FDocuments%2FPerplexica%2Fsrc%2Fapp&pageExtensions=tsx&pageExtensions=ts&pageExtensions=jsx&pageExtensions=js&rootDir=%2FUsers%2Fprincemensah%2FDocuments%2FPerplexica&isDev=true&tsconfigPath=tsconfig.json&basePath=&assetPrefix=&nextConfigOutput=&preferredRegion=&middlewareConfig=e30%3D&isGlobalNotFoundEnabled=!:320:13)
+    at async DevServer.renderToResponseWithComponentsImpl (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1422:9)
+    at async DevServer.renderPageComponent (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1474:24)
+    at async DevServer.renderToResponseImpl (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1514:32)
+    at async DevServer.pipeImpl (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:1025:25)
+    at async NextNodeServer.handleCatchallRenderRequest (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/next-server.js:393:17)
+    at async DevServer.handleRequestImpl (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/base-server.js:916:17)
+    at async node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/next-dev-server.js:399:20
+    at async Span.traceAsyncFn (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/dev/next-dev-server.js:395:24)
+    at async invokeRender (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js:240:21)
+    at async handleRequest (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js:437:24)
+    at async requestHandlerImpl (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/router-server.js:485:13)
+    at async Server.requestListener (node_modules/.pnpm/next@15.5.6_@playwright+test@1.56.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/server/lib/start-server.js:226:13)
+
+  [cause]: 
+
+      at internalConnectMultiple (node:net:1134:18)
+      at afterConnectMultiple (node:net:1715:7)
+      at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+
+ GET /api/discover?mode=preview 500 in 28ms
+ GET /api/auth/get-session 200 in 20ms
+ ○ Compiling /api/chat ...
+ ✓ Compiled /api/chat in 2.2s (12962 modules)
+TypeError: fetch failed
+    at async searchSearxng (src/lib/searxng.ts:42:15)
+    at async RunnableLambda.eval [as func] (src/lib/search/metaSearchAgent.ts:228:23)
+  40 |   }
+  41 |
+> 42 |   const res = await fetch(url, {
+     |               ^
+  43 |     headers: {
+  44 |       'User-Agent': 'Perplexica/1.0 (+https://github.com/ItzCrazyKns/Perplexica)',
+  45 |       'X-Forwarded-For': '127.0.0.1', {
+  [cause]: [AggregateError: ] { code: 'ECONNREFUSED' }
+}
+ ⨯ unhandledRejection: TypeError: fetch failed
+    at async searchSearxng (src/lib/searxng.ts:42:15)
+    at async RunnableLambda.eval [as func] (src/lib/search/metaSearchAgent.ts:228:23)
+  40 |   }
+  41 |
+> 42 |   const res = await fetch(url, {
+     |               ^
+  43 |     headers: {
+  44 |       'User-Agent': 'Perplexica/1.0 (+https://github.com/ItzCrazyKns/Perplexica)',
+  45 |       'X-Forwarded-For': '127.0.0.1', {
+  [cause]: [AggregateError: ] { code: 'ECONNREFUSED' }
+}
+ ⨯ unhandledRejection:  TypeError: fetch failed
+    at async searchSearxng (src/lib/searxng.ts:42:15)
+    at async RunnableLambda.eval [as func] (src/lib/search/metaSearchAgent.ts:228:23)
+  40 |   }
+  41 |
+> 42 |   const res = await fetch(url, {
+     |               ^
+  43 |     headers: {
+  44 |       'User-Agent': 'Perplexica/1.0 (+https://github.com/ItzCrazyKns/Perplexica)',
+  45 |       'X-Forwarded-For': '127.0.0.1', {
+  [cause]: [AggregateError: ] { code: 'ECONNREFUSED' }
+}
+ GET /api/auth/get-session 200 in 167ms
+ GET /api/auth/get-session 200 in 35ms
+ GET /api/auth/get-session 200 in 53ms
+ GET /api/auth/get-session 200 in 110ms
+^C
+(base) princemensah@princemensah-macbook-pro Perplexica % 

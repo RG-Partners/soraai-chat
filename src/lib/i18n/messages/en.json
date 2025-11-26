@@ -1,0 +1,52 @@
+{
+  "Chat": {
+    "Greeting": {
+      "goodMorning": "Good morning, {name}.",
+      "goodAfternoon": "Good afternoon, {name}.",
+      "goodEvening": "Good evening, {name}.",
+      "niceToSeeYouAgain": "Nice to see you again, {name}.",
+      "whatAreYouWorkingOnToday": "What are you working on today, {name}?",
+      "letMeKnowWhenYoureReadyToBegin": "Let me know when you're ready to begin.",
+      "whatAreYourThoughtsToday": "What are your thoughts today?",
+      "whereWouldYouLikeToStart": "Where would you like to start?",
+      "whatAreYouThinking": "What are you thinking, {name}?"
+    },
+    "placeholder": "Ask anything...",
+    "followUpPlaceholder": "Ask a follow-up"
+  },
+  "Sidebar": {
+    "home": "Home",
+    "briefings": "Briefings",
+    "chatHistory": "History",
+    "newChat": "New chat",
+    "startNewChat": "Start a new chat"
+  },
+  "SettingsMenu": {
+    "theme": "Theme",
+    "notifications": "Notifications",
+    "chatPreferences": "Chat Preferences",
+    "personalization": "Personalization",
+    "language": "Language",
+    "adminDashboard": "Admin Dashboard",
+    "keyboardShortcuts": "Keyboard Shortcuts",
+    "reportAnIssue": "Report an issue",
+    "joinCommunity": "Join Community",
+    "userSettings": "User Settings",
+    "themeLight": "Light",
+    "themeDark": "Dark"
+  },
+  "Toasts": {
+    "keyboardShortcutsComingSoon": "Keyboard shortcuts are coming soon.",
+    "notificationsComingSoon": "Notifications feature coming soon."
+  },
+  "Auth": {
+    "signOut": "Sign out",
+    "signingOut": "Signing out…",
+    "signOutFailed": "Failed to sign out."
+  },
+  "Roles": {
+    "admin": "Admin",
+    "editor": "Editor",
+    "user": "User"
+  }
+}
