@@ -17,6 +17,7 @@ class ConfigManager {
     '/data/config.json',
   );
   configVersion = 1;
+  private canPersistConfig = true;
   private readonly chatCapableProviders = new Set([
     'openai',
     'anthropic',
@@ -126,6 +127,7 @@ class ConfigManager {
   }
 
   private saveConfig() {
+    if (!this.canPersistConfig) return;
     fs.writeFileSync(
       this.configPath,
       JSON.stringify(this.currentConfig, null, 2),
@@ -133,37 +135,70 @@ class ConfigManager {
   }
 
   private initializeConfig() {
-    const exists = fs.existsSync(this.configPath);
-    if (!exists) {
+    const configDir = path.dirname(this.configPath);
+
+    if (!fs.existsSync(configDir)) {
+      try {
+        fs.mkdirSync(configDir, { recursive: true });
+      } catch (err) {
+        this.canPersistConfig = false;
+        configLogger.warn(
+          `Config directory ${configDir} is not writable. Proceeding without file persistence.`,
+        );
+      }
+    }
+
+    const configExists = fs.existsSync(this.configPath);
+
+    if (!configExists && this.canPersistConfig) {
+      this.canPersistConfig = this.tryWriteConfig();
+    }
+
+    if (!fs.existsSync(this.configPath)) {
+      if (!this.canPersistConfig) {
+        configLogger.debug(
+          'Config file not found and persistence disabled; using in-memory defaults.',
+        );
+      }
+      return;
+    }
+
+    try {
+      this.currentConfig = JSON.parse(
+        fs.readFileSync(this.configPath, 'utf-8'),
+      );
+    } catch (err) {
+      if (err instanceof SyntaxError) {
+        configLogger.error(
+          `Error parsing config file at ${this.configPath}.`,
+          err,
+        );
+        configLogger.warn(
+          'Loading default config and overwriting the existing file.',
+        );
+        this.canPersistConfig = this.tryWriteConfig();
+      } else {
+        configLogger.error('Unknown error reading config file.', err);
+      }
+      return;
+    }
+
+    this.currentConfig = this.migrateConfig(this.currentConfig);
+  }
+
+  private tryWriteConfig() {
+    try {
       fs.writeFileSync(
         this.configPath,
         JSON.stringify(this.currentConfig, null, 2),
       );
-    } else {
-      try {
-        this.currentConfig = JSON.parse(
-          fs.readFileSync(this.configPath, 'utf-8'),
-        );
-      } catch (err) {
-        if (err instanceof SyntaxError) {
-          configLogger.error(
-            `Error parsing config file at ${this.configPath}.`,
-            err,
-          );
-          configLogger.warn(
-            'Loading default config and overwriting the existing file.',
-          );
-          fs.writeFileSync(
-            this.configPath,
-            JSON.stringify(this.currentConfig, null, 2),
-          );
-          return;
-        } else {
-          configLogger.error('Unknown error reading config file.', err);
-        }
-      }
-
-      this.currentConfig = this.migrateConfig(this.currentConfig);
+      return true;
+    } catch (err) {
+      configLogger.warn(
+        `Failed to persist config at ${this.configPath}. Continuing without persistence.`,
+        err,
+      );
+      return false;
     }
   }
 
