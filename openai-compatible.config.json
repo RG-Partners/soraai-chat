@@ -1,0 +1,14 @@
+[
+  {
+    "provider": "Groq",
+    "apiKey": "YOUR_GROQ_API_KEY",
+    "baseUrl": "https://api.groq.com/openai/v1",
+    "models": [
+      {
+        "apiName": "llama3-8b-8192",
+        "uiName": "Llama 3 8B",
+        "supportsTools": true
+      }
+    ]
+  }
+]

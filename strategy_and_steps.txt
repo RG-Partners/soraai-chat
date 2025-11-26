@@ -1,0 +1,12 @@
+**Implementation Plan**
+- Close the storage gap by adding actions.ts, route.ts, and route.ts, exposing health checks and presigned uploads. They lean on `lib/file-storage` and need client hooks (e.g. `hooks/usePresignedUpload.ts`) plus a UI affordance in upload flows to display configuration errors.
+- Harden bootstrapping: update instrumentation.ts to `process.exit(1)` on migration failure, and expand load-env.ts (and the `load-env.mjs` entry) to mimic the upstream loader’s .env.local / `.env.{NODE_ENV}` cascade and non-destructive merges. Ensure every runtime/script import uses the unified loader.
+- Standardize logging by replacing remaining `console.*` usage in hot paths (route.ts, metaSearchAgent.ts, `lib/chains/*`, etc.) with `lib/logger`. Add minimal context tags so streaming logs stay readable.
+- Reintroduce quality tooling: port the Vitest suite scaffold (`vitest.config.ts`, `tests/**` smoke specs) and Playwright harness from better-chatbot, adjusting fixtures to our schema; bring over `.github/workflows/pr-check.yml`, `lint-and-type-check.yml`, and Husky/biome configs for pre-commit enforcement. Update package.json scripts (`test`, `test:e2e`, `lint:fix`, `check`) accordingly.
+- Upgrade container/deployment support: adapt compose.yml to include a Postgres service and app build, add helper scripts (`scripts/clean.ts`, `scripts/cleanup-all-test-data.ts`, `scripts/seed-test-users.ts`) targeting our tables, and document the flow in UPDATING.md.
+- Optional stretch goals once the above land: port the storage diagnostics UI (settings pane), adopt the richer MCP management if needed, and evaluate the i18n layer (`src/i18n`, message bundles) for future localization work.
+
+**Next Steps**
+1. Confirm priority order and assignees for each bullet.
+2. Spin a branch for the storage endpoints; once merged, tackle instrumentation/env loader together to avoid double restarts.
+3. Schedule time for the test/CI migration—expect a larger PR since it touches configs, scripts, and GitHub workflows.

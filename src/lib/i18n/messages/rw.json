@@ -1,0 +1,52 @@
+{
+  "Chat": {
+    "Greeting": {
+      "goodMorning": "Mwaramutse, {name}.",
+      "goodAfternoon": "Mwiriwe, {name}.",
+      "goodEvening": "Mwiriwe neza, {name}.",
+      "niceToSeeYouAgain": "Nishimiye kongera kukubona, {name}.",
+      "whatAreYouWorkingOnToday": "Uri gukora iki uyu munsi, {name}?",
+      "letMeKnowWhenYoureReadyToBegin": "Mbwire igihe witeguye gutangira.",
+      "whatAreYourThoughtsToday": "Ni iki uri gutekereza uyu munsi?",
+      "whereWouldYouLikeToStart": "Urashaka gutangirira he?",
+      "whatAreYouThinking": "Uri gutekereza iki, {name}?"
+    },
+    "placeholder": "Baza ikintu icyo ari cyo cyose...",
+    "followUpPlaceholder": "Baza ikurikirana"
+  },
+  "Sidebar": {
+    "home": "Ahabanza",
+    "briefings": "Ibyegeranyo",
+    "chatHistory": "Amateka y'ibiganiro",
+    "newChat": "Ikiganiro gishya",
+    "startNewChat": "Tangira ikiganiro gishya"
+  },
+  "SettingsMenu": {
+    "theme": "Imisusire",
+    "notifications": "Amatangazo",
+    "chatPreferences": "Amahitamo y'ikiganiro",
+    "personalization": "Guhitamo ku giti cyawe",
+    "language": "Ururimi",
+    "adminDashboard": "Urubuga rwa admin",
+    "keyboardShortcuts": "Inzira ngufi za mudasobwa",
+    "reportAnIssue": "Tanga ikibazo",
+    "joinCommunity": "Injira mu muryango",
+    "userSettings": "Amagenamiterere y'umukoresha",
+    "themeLight": "Urumuri",
+    "themeDark": "Umukara"
+  },
+  "Toasts": {
+    "keyboardShortcutsComingSoon": "Inzira ngufi za mudasobwa zirimo kuza vuba.",
+    "notificationsComingSoon": "Ibiranga amatangazo birimo kuza vuba."
+  },
+  "Auth": {
+    "signOut": "Sohoka",
+    "signingOut": "Gusohoka…",
+    "signOutFailed": "Gusohoka byanze."
+  },
+  "Roles": {
+    "admin": "Umuyobozi",
+    "editor": "Umwanditsi",
+    "user": "Umukoresha"
+  }
+}
