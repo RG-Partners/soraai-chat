@@ -1,0 +1,52 @@
+{
+  "Chat": {
+    "Greeting": {
+      "goodMorning": "Bonjour, {name}.",
+      "goodAfternoon": "Bon après-midi, {name}.",
+      "goodEvening": "Bonsoir, {name}.",
+      "niceToSeeYouAgain": "Ravi de vous revoir, {name}.",
+      "whatAreYouWorkingOnToday": "Sur quoi travaillez-vous aujourd'hui, {name}?",
+      "letMeKnowWhenYoureReadyToBegin": "Faites-moi savoir quand vous êtes prêt à commencer.",
+      "whatAreYourThoughtsToday": "Quelles sont vos pensées aujourd'hui?",
+      "whereWouldYouLikeToStart": "Par où aimeriez-vous commencer?",
+      "whatAreYouThinking": "À quoi pensez-vous, {name}?"
+    },
+    "placeholder": "Posez une question...",
+    "followUpPlaceholder": "Posez une question de suivi"
+  },
+  "Sidebar": {
+    "home": "Accueil",
+    "briefings": "Briefings",
+    "chatHistory": "Historique des conversations",
+    "newChat": "Nouvelle conversation",
+    "startNewChat": "Commencer une nouvelle conversation"
+  },
+  "SettingsMenu": {
+    "theme": "Thème",
+    "notifications": "Notifications",
+    "chatPreferences": "Préférences de conversation",
+    "personalization": "Personnalisation",
+    "language": "Langue",
+    "adminDashboard": "Tableau de bord Admin",
+    "keyboardShortcuts": "Raccourcis clavier",
+    "reportAnIssue": "Signaler un problème",
+    "joinCommunity": "Rejoindre la communauté",
+    "userSettings": "Paramètres utilisateur",
+    "themeLight": "Clair",
+    "themeDark": "Foncé"
+  },
+  "Toasts": {
+    "keyboardShortcutsComingSoon": "Les raccourcis clavier arrivent bientôt.",
+    "notificationsComingSoon": "La fonctionnalité de notifications arrive bientôt."
+  },
+  "Auth": {
+    "signOut": "Se déconnecter",
+    "signingOut": "Déconnexion…",
+    "signOutFailed": "Échec de la déconnexion."
+  },
+  "Roles": {
+    "admin": "Administrateur",
+    "editor": "Éditeur",
+    "user": "Utilisateur"
+  }
+}
