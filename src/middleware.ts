@@ -121,7 +121,12 @@ export async function middleware(request: NextRequest) {
       .filter(Boolean);
 
     const mergedCookieHeader = [existingCookieHeader, ...cookieTokens]
-      .filter((value): value is string => Boolean(value) && value.trim().length > 0)
+      .filter((value): value is string => {
+        if (!value) {
+          return false;
+        }
+        return value.trim().length > 0;
+      })
       .join('; ');
 
     if (mergedCookieHeader.length > 0) {
