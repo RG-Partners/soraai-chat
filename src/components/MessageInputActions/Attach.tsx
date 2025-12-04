@@ -21,7 +21,7 @@ const Attach = () => {
   const { files, setFiles, setFileIds, fileIds } = useChat();
 
   const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef<any>();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoading(true);
@@ -81,7 +81,7 @@ const Attach = () => {
               <div className="flex flex-row items-center space-x-4">
                 <button
                   type="button"
-                  onClick={() => fileInputRef.current.click()}
+                  onClick={() => fileInputRef.current?.click()}
                   className="flex flex-row items-center space-x-1 text-black/70 dark:text-white/70 hover:text-black hover:dark:text-white transition duration-200 focus:outline-none"
                 >
                   <input
@@ -137,7 +137,7 @@ const Attach = () => {
   ) : (
     <button
       type="button"
-      onClick={() => fileInputRef.current.click()}
+      onClick={() => fileInputRef.current?.click()}
       className={cn(
         'flex items-center justify-center active:border-none hover:bg-light-200 hover:dark:bg-dark-200 p-2 rounded-lg focus:outline-none headless-open:text-black dark:headless-open:text-white text-black/50 dark:text-white/50 active:scale-95 transition duration-200 hover:text-black dark:hover:text-white',
       )}
