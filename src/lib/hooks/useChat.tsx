@@ -319,7 +319,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [hasCheckedConfig, setHasCheckedConfig] = useState(false);
 
   const messagesRef = useRef<Message[]>([]);
-  const lastSessionIdRef = useRef<string | undefined>();
+  const lastSessionIdRef = useRef<string | undefined>(undefined);
 
   const chatTurns = useMemo((): ChatTurn[] => {
     return messages.filter(
