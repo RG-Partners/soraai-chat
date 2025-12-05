@@ -677,6 +677,11 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       if (data.type === 'messageEnd') {
+        if (!added || recievedMessage.trim().length === 0) {
+          setLoading(false);
+          return;
+        }
+
         setChatHistory((prevHistory) => [
           ...prevHistory,
           ['human', message],
