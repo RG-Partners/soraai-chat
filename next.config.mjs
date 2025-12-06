@@ -5,6 +5,12 @@ const BUILD_OUTPUT = process.env.NEXT_STANDALONE_OUTPUT ? 'standalone' : undefin
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: BUILD_OUTPUT,
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/chat': ['src/lib/ebm/templates/**/*'],
+      '/api/uploads': ['src/lib/ebm/templates/**/*'],
+    },
+  },
   images: {
     remotePatterns: [
       {
