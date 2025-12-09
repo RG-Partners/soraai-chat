@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const FX_ROTATION_INTERVAL_MS = 8000;
+const TARGET_CURRENCIES = ['GBP', 'EUR', 'USD'] as const;
 
 const percentFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2,
@@ -78,7 +79,7 @@ const RatesWidget = () => {
   const [data, setData] = useState<RatesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [activeFxIndex, setActiveFxIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -98,7 +99,7 @@ const RatesWidget = () => {
 
         const response: RatesResponse = await res.json();
         setData(response);
-        setActiveFxIndex(0);
+        setActiveIndex(0);
       } catch (err) {
         if (!controller.signal.aborted) {
           console.error('Failed to load rates widget data:', err);
@@ -118,39 +119,53 @@ const RatesWidget = () => {
     };
   }, []);
 
+  const targetRates = useMemo(() => {
+    if (!data?.fx?.length) {
+      return [] as RatesResponse['fx'];
+    }
+
+    return TARGET_CURRENCIES.map((code) =>
+      data.fx.find((entry) => entry.code === code),
+    ).filter(Boolean) as RatesResponse['fx'];
+  }, [data?.fx]);
+
   useEffect(() => {
-    const total = data?.fx?.length ?? 0;
-    if (total <= 1) {
+    if (!targetRates.length) {
+      setActiveIndex(0);
+      return;
+    }
+
+    setActiveIndex((prev) => (prev >= targetRates.length ? 0 : prev));
+  }, [targetRates.length]);
+
+  useEffect(() => {
+    if (targetRates.length <= 1) {
       return;
     }
 
     const id = window.setInterval(() => {
-      setActiveFxIndex((prev) => {
+      setActiveIndex((prev) => {
         const next = prev + 1;
-        return next >= total ? 0 : next;
+        return next >= targetRates.length ? 0 : next;
       });
     }, FX_ROTATION_INTERVAL_MS);
 
     return () => window.clearInterval(id);
-  }, [data?.fx?.length]);
+  }, [targetRates.length]);
 
-  useEffect(() => {
-    if (!data?.fx?.length) {
-      setActiveFxIndex(0);
-      return;
+  const activeRate = targetRates[activeIndex] ?? null;
+
+  const activeAsOfText = (() => {
+    if (!activeRate?.asOf) {
+      return '—';
     }
 
-    setActiveFxIndex((prev) =>
-      prev >= data.fx.length ? data.fx.length - 1 : prev,
-    );
-  }, [data?.fx?.length]);
-
-  const fxEntry = data?.fx?.length
-    ? data.fx[Math.min(activeFxIndex, data.fx.length - 1)]
-    : undefined;
+    const formatted = formatAsOfLabel(activeRate.asOf);
+    return formatted === '—' ? '—' : `As of ${formatted}`;
+  })();
 
   return (
-    <div className="bg-light-secondary dark:bg-dark-secondary rounded-2xl border border-light-200 dark:border-dark-200 shadow-sm shadow-light-200/10 dark:shadow-black/25 flex flex-row items-center w-full min-h-[112px] px-4 py-3 gap-4">
+    <div className="bg-light-secondary dark:bg-dark-secondary rounded-2xl border border-light-200 dark:border-dark-200 shadow-sm shadow-light-200/10 dark:shadow-black/25 flex flex-row items-center w-full h-24 min-h-[96px] max-h-[96px] px-4 py-2 gap-4">
       {loading ? (
         <div className="flex flex-row items-center justify-between w-full h-full animate-pulse">
           <div className="flex flex-col justify-between h-full flex-1 pr-3">
@@ -167,48 +182,28 @@ const RatesWidget = () => {
       ) : error ? (
         <div className="text-xs text-red-400">Could not load rates.</div>
       ) : (
-        <div className="flex flex-col justify-between w-full h-full">
-          <div className="flex flex-row items-stretch h-full gap-3">
-            <div className="flex flex-col justify-between flex-1 pr-3 border-r border-light-200/40 dark:border-dark-200/40">
-              <span className="text-[10px] uppercase tracking-[0.14rem] text-black/50 dark:text-white/50">
-                Policy Rate
-              </span>
-              <span className="text-2xl font-semibold text-black dark:text-white">
-                {toPercent(data?.policyRate.value ?? null)}
-              </span>
-              <span className="text-[10px] text-black/60 dark:text-white/60">
-                {formatMonthLabel(data?.policyRate.month ?? null)}
-              </span>
-            </div>
-            <div className="flex flex-col justify-between flex-1 pl-3">
-              <span className="text-[10px] uppercase tracking-[0.14rem] text-black/50 dark:text-white/50">
-                Inflation
-              </span>
-              <span className="text-2xl font-semibold text-black dark:text-white">
-                {toPercent(data?.inflation.value ?? null)}
-              </span>
-              <span className="text-[10px] text-black/60 dark:text-white/60">
-                {formatMonthLabel(data?.inflation.month ?? null)}
-              </span>
-            </div>
+        <div className="flex flex-row items-center justify-between w-full h-full">
+          <div className="flex flex-col justify-center flex-1 pr-3 border-r border-light-200/40 dark:border-dark-200/40 h-full">
+            <span className="text-[10px] uppercase tracking-[0.14rem] text-black/50 dark:text-white/50">
+                {activeRate?.label ?? `${TARGET_CURRENCIES[0]}/RWF`}
+            </span>
+            <span className="text-2xl font-semibold text-black dark:text-white">
+                {toCurrency(activeRate?.average ?? null)}
+            </span>
+            <span className="text-[10px] text-black/60 dark:text-white/60">
+                {activeAsOfText}
+            </span>
           </div>
-          <div className="flex flex-row items-center text-[11px] text-black/65 dark:text-white/65 pt-3 mt-1 border-t border-light-200/40 dark:border-dark-200/40">
-            {fxEntry ? (
-              <span className="flex flex-row items-center gap-3 w-full overflow-x-auto">
-                <span className="font-medium whitespace-nowrap">
-                  {fxEntry.label}{' '}
-                  {toCurrency(fxEntry.average)}
-                </span>
-                <span className="text-[10px] text-black/50 dark:text-white/50 whitespace-nowrap">
-                  Buy {toCurrency(fxEntry.buying)} · Sell {toCurrency(fxEntry.selling)} · As of{' '}
-                  {formatAsOfLabel(fxEntry.asOf)}
-                </span>
-              </span>
-            ) : (
-              <span className="text-[10px] text-black/50 dark:text-white/50">
-                Exchange rates unavailable.
-              </span>
-            )}
+          <div className="flex flex-col justify-center flex-1 pl-3 h-full gap-1">
+            <span className="text-[10px] uppercase tracking-[0.14rem] text-black/50 dark:text-white/50">
+              Inflation
+            </span>
+            <span className="text-2xl font-semibold text-black dark:text-white">
+              {toPercent(data?.inflation.value ?? null)}
+            </span>
+            <span className="text-[10px] text-black/60 dark:text-white/60">
+              {formatMonthLabel(data?.inflation.month ?? null)}
+            </span>
           </div>
         </div>
       )}
