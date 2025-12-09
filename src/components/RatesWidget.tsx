@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+const FX_ROTATION_INTERVAL_MS = 8000;
+const TARGET_CURRENCIES = ['GBP', 'EUR', 'USD'] as const;
+
 const percentFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
@@ -76,6 +79,7 @@ const RatesWidget = () => {
   const [data, setData] = useState<RatesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -95,6 +99,7 @@ const RatesWidget = () => {
 
         const response: RatesResponse = await res.json();
         setData(response);
+        setActiveIndex(0);
       } catch (err) {
         if (!controller.signal.aborted) {
           console.error('Failed to load rates widget data:', err);
@@ -114,18 +119,50 @@ const RatesWidget = () => {
     };
   }, []);
 
-  const gbpRate = useMemo(() => {
-    return data?.fx?.find((entry) => entry.code === 'GBP');
+  const targetRates = useMemo(() => {
+    if (!data?.fx?.length) {
+      return [] as RatesResponse['fx'];
+    }
+
+    return TARGET_CURRENCIES.map((code) =>
+      data.fx.find((entry) => entry.code === code),
+    ).filter(Boolean) as RatesResponse['fx'];
   }, [data?.fx]);
 
-  const gbpAsOfText = useMemo(() => {
-    if (!gbpRate?.asOf) {
+  useEffect(() => {
+    if (!targetRates.length) {
+      setActiveIndex(0);
+      return;
+    }
+
+    setActiveIndex((prev) => (prev >= targetRates.length ? 0 : prev));
+  }, [targetRates.length]);
+
+  useEffect(() => {
+    if (targetRates.length <= 1) {
+      return;
+    }
+
+    const id = window.setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = prev + 1;
+        return next >= targetRates.length ? 0 : next;
+      });
+    }, FX_ROTATION_INTERVAL_MS);
+
+    return () => window.clearInterval(id);
+  }, [targetRates.length]);
+
+  const activeRate = targetRates[activeIndex] ?? null;
+
+  const activeAsOfText = (() => {
+    if (!activeRate?.asOf) {
       return '—';
     }
 
-    const formatted = formatAsOfLabel(gbpRate.asOf);
+    const formatted = formatAsOfLabel(activeRate.asOf);
     return formatted === '—' ? '—' : `As of ${formatted}`;
-  }, [gbpRate?.asOf]);
+  })();
 
   return (
     <div className="bg-light-secondary dark:bg-dark-secondary rounded-2xl border border-light-200 dark:border-dark-200 shadow-sm shadow-light-200/10 dark:shadow-black/25 flex flex-row items-center w-full h-24 min-h-[96px] max-h-[96px] px-4 py-2 gap-4">
@@ -148,13 +185,13 @@ const RatesWidget = () => {
         <div className="flex flex-row items-center justify-between w-full h-full">
           <div className="flex flex-col justify-center flex-1 pr-3 border-r border-light-200/40 dark:border-dark-200/40 h-full">
             <span className="text-[10px] uppercase tracking-[0.14rem] text-black/50 dark:text-white/50">
-              {gbpRate?.label ?? 'GBP/RWF'}
+                {activeRate?.label ?? `${TARGET_CURRENCIES[0]}/RWF`}
             </span>
             <span className="text-2xl font-semibold text-black dark:text-white">
-              {toCurrency(gbpRate?.average ?? null)}
+                {toCurrency(activeRate?.average ?? null)}
             </span>
             <span className="text-[10px] text-black/60 dark:text-white/60">
-              {gbpAsOfText}
+                {activeAsOfText}
             </span>
           </div>
           <div className="flex flex-col justify-center flex-1 pl-3 h-full gap-1">
