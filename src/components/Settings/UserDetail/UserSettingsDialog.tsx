@@ -191,6 +191,17 @@ export function UserSettingsDialog({ open, onClose, user }: DialogProps) {
     if (passwordResult.success) {
       toast.success(passwordResult.message ?? 'Password updated successfully');
       setPasswordState(initialPasswordState);
+      setDetails((current) =>
+        current
+          ? {
+              ...current,
+              account: {
+                ...current.account,
+                hasPassword: true,
+              },
+            }
+          : current,
+      );
     } else if (passwordResult.message) {
       toast.error(passwordResult.message);
     }
@@ -213,6 +224,18 @@ export function UserSettingsDialog({ open, onClose, user }: DialogProps) {
   const stats = details?.stats;
   const createdAt = details?.user.createdAt ?? null;
   const lastLogin = details?.user.lastLogin ?? null;
+  const hasPassword = details?.account.hasPassword ?? false;
+  const securityTitle = hasPassword ? 'Security' : 'Password login';
+  const securityDescription = hasPassword
+    ? 'Change your account password. This will sign you out on other devices.'
+    : 'Create a password so you can also sign in with email and password.';
+  const passwordButtonLabel = hasPassword
+    ? passwordPending
+      ? 'Updating…'
+      : 'Update password'
+    : passwordPending
+      ? 'Creating…'
+      : 'Create password';
 
   const handleAvatarUpload = useCallback(
     async (imageUrl: string) => {
@@ -448,30 +471,36 @@ export function UserSettingsDialog({ open, onClose, user }: DialogProps) {
                           className="rounded-xl border border-light-200/70 bg-white p-6 shadow-sm dark:border-dark-200/70 dark:bg-black/20"
                         >
                           <h3 className="text-base font-semibold text-black dark:text-white">
-                            Security
+                            {securityTitle}
                           </h3>
                           <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-                            Change your account password. This will sign you out on other devices.
+                            {securityDescription}
                           </p>
 
                           <div className="mt-5 grid gap-4">
-                            <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                              Current password
-                              <input
-                                name="currentPassword"
-                                type="password"
-                                value={passwordState.currentPassword}
-                                onChange={(event) =>
-                                  setPasswordState((prev) => ({
-                                    ...prev,
-                                    currentPassword: event.target.value,
-                                  }))
-                                }
-                                className="mt-1 w-full rounded-lg border border-light-200 bg-white px-3 py-2 text-sm text-black outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-dark-200 dark:bg-dark-secondary dark:text-white"
-                                placeholder="Current password"
-                                required
-                              />
-                            </label>
+                            {hasPassword ? (
+                              <label className="text-sm font-medium text-black/70 dark:text-white/70">
+                                Current password
+                                <input
+                                  name="currentPassword"
+                                  type="password"
+                                  value={passwordState.currentPassword}
+                                  onChange={(event) =>
+                                    setPasswordState((prev) => ({
+                                      ...prev,
+                                      currentPassword: event.target.value,
+                                    }))
+                                  }
+                                  className="mt-1 w-full rounded-lg border border-light-200 bg-white px-3 py-2 text-sm text-black outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-dark-200 dark:bg-dark-secondary dark:text-white"
+                                  placeholder="Current password"
+                                  required={hasPassword}
+                                />
+                              </label>
+                            ) : (
+                              <div className="rounded-lg border border-dashed border-light-200/70 bg-light-200/40 p-4 text-sm text-black/70 dark:border-dark-200/70 dark:bg-dark-200/40 dark:text-white/70">
+                                Your account currently relies on {accountProvidersLabel}. Add a password to enable email login.
+                              </div>
+                            )}
 
                             <label className="text-sm font-medium text-black/70 dark:text-white/70">
                               New password
@@ -524,10 +553,10 @@ export function UserSettingsDialog({ open, onClose, user }: DialogProps) {
                               {passwordPending ? (
                                 <>
                                   <Loader2 className="mr-2 size-4 animate-spin" />
-                                  Updating…
+                                  {hasPassword ? 'Updating…' : 'Creating…'}
                                 </>
                               ) : (
-                                'Update password'
+                                passwordButtonLabel
                               )}
                             </button>
                           </div>
