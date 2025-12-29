@@ -8,6 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "check-types": "yarn typecheck",
     "format:write": "prettier . --write",
     "db:migrate": "node scripts/db-migrate.cjs",
     "db:push": "drizzle-kit push",

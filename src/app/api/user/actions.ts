@@ -135,15 +135,9 @@ export async function updateUserPasswordAction(
     };
   }
 
-  if (!accountInfo.hasPassword) {
-    return {
-      success: false,
-      message: 'Password updates are not available for social accounts',
-      errorCode: UpdateUserPasswordError.INVALID_ACCOUNT,
-    };
-  }
+  const isSettingInitialPassword = !accountInfo.hasPassword;
 
-  if (isCurrentUser && !parsed.data.currentPassword) {
+  if (!isSettingInitialPassword && isCurrentUser && !parsed.data.currentPassword) {
     return {
       success: false,
       message: 'Current password is required',
@@ -154,16 +148,31 @@ export async function updateUserPasswordAction(
   try {
     const requestHeaders = await headers();
 
-    if (isCurrentUser) {
-      await auth.api.changePassword({
-        body: {
-          currentPassword: parsed.data.currentPassword!,
-          newPassword: parsed.data.newPassword,
-          revokeOtherSessions: true,
-        },
-        headers: requestHeaders,
-        returnHeaders: true,
-      });
+    if (accountInfo.hasPassword) {
+      if (isCurrentUser) {
+        await auth.api.changePassword({
+          body: {
+            currentPassword: parsed.data.currentPassword!,
+            newPassword: parsed.data.newPassword,
+            revokeOtherSessions: true,
+          },
+          headers: requestHeaders,
+          returnHeaders: true,
+        });
+      } else {
+        await auth.api.setUserPassword({
+          body: {
+            userId: targetUserId,
+            newPassword: parsed.data.newPassword,
+          },
+          headers: requestHeaders,
+        });
+
+        await auth.api.revokeUserSessions({
+          body: { userId: targetUserId },
+          headers: requestHeaders,
+        });
+      }
     } else {
       await auth.api.setUserPassword({
         body: {
@@ -171,17 +180,22 @@ export async function updateUserPasswordAction(
           newPassword: parsed.data.newPassword,
         },
         headers: requestHeaders,
+        ...(isCurrentUser ? { returnHeaders: true } : {}),
       });
 
-      await auth.api.revokeUserSessions({
-        body: { userId: targetUserId },
-        headers: requestHeaders,
-      });
+      if (!isCurrentUser) {
+        await auth.api.revokeUserSessions({
+          body: { userId: targetUserId },
+          headers: requestHeaders,
+        });
+      }
     }
 
     return {
       success: true,
-      message: 'Password updated successfully',
+      message: accountInfo.hasPassword
+        ? 'Password updated successfully'
+        : 'Password set successfully',
     };
   } catch (error) {
     console.error('Failed to update password', error);

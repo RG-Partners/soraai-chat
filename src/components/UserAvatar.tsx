@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -46,10 +47,12 @@ export const UserAvatar = ({
       )}
     >
       {showImage ? (
-        <img
+        <Image
           src={image as string}
           alt={altText}
-          className="h-full w-full object-cover"
+          fill
+          sizes="100%"
+          className="object-cover"
           onError={() => setIsImageError(true)}
           loading="lazy"
         />

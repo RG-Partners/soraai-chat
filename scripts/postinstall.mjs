@@ -40,11 +40,11 @@ const main = async () => {
     }
 
     logger.info('Detected Vercel environment. Triggering database migrations.');
-    await runCommand('pnpm db:migrate', 'Database migration');
+    await runCommand('yarn db:migrate', 'Database migration');
 
     if (process.env.SEED_ADMIN_EMAIL && process.env.SEED_ADMIN_PASSWORD) {
       logger.info('Seeding admin user as part of Vercel deployment.');
-      await runCommand('pnpm seed:admin', 'Admin user seed');
+      await runCommand('yarn seed:admin', 'Admin user seed');
     } else {
       logger.info('SEED_ADMIN_EMAIL or SEED_ADMIN_PASSWORD not set. Skipping admin seed.');
     }
@@ -62,9 +62,9 @@ const main = async () => {
   }
 
   logger.info('Local environment detected. Ensuring env files exist.');
-  await runCommand('pnpm initial:env', 'Initial environment setup');
+  await runCommand('yarn initial:env', 'Initial environment setup');
   await runCommand(
-    'pnpm openai-compatiable:init',
+    'yarn openai-compatiable:init',
     'OpenAI compatible config scaffold',
   );
 };
