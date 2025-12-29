@@ -89,7 +89,7 @@ export function AdminUserDetail({
 }: AdminUserDetailProps) {
   const router = useRouter();
   const [user, setUser] = useState<NormalizedUser>(() => normalizeUser(initialUser));
-  const [account] = useState<UserAccountInfo>(initialAccount);
+  const [account, setAccount] = useState<UserAccountInfo>(initialAccount);
   const [stats] = useState<UserStats>(initialStats);
   const [sessions, setSessions] = useState<SerializableSession[]>(initialSessions);
   const [isAvatarUpdating, setIsAvatarUpdating] = useState(false);
@@ -145,6 +145,10 @@ export function AdminUserDetail({
       if (result?.success) {
         toast.success(result.message ?? 'Password updated.');
         setPasswordDialogOpen(false);
+        setAccount((prev) => ({
+          ...prev,
+          hasPassword: true,
+        }));
       } else if (result?.message) {
         toast.error(result.message);
       } else {
@@ -355,6 +359,8 @@ export function AdminUserDetail({
         action={passwordAction}
         pending={passwordPending}
         isCurrentUser={isCurrentUser}
+        requireCurrentPassword={isCurrentUser && account.hasPassword}
+        isInitialPassword={!account.hasPassword}
         state={passwordResult}
       />
 
@@ -560,16 +566,24 @@ function AccessCard({
             <div>
               <p className="font-semibold">Password login</p>
               <p className="text-xs text-black/60 dark:text-white/60">
-                {account.hasPassword ? 'Password can be reset.' : 'No password set via email login.'}
+                {account.hasPassword
+                  ? 'Password can be reset or rotated.'
+                  : 'No password set. Add one to enable email login.'}
               </p>
             </div>
             <button
               type="button"
               onClick={onOpenPasswordDialog}
-              disabled={!account.hasPassword || passwordPending}
+              disabled={passwordPending}
               className="inline-flex items-center gap-2 rounded-full border border-light-200/70 bg-white px-3 py-1 text-xs font-medium text-black shadow-sm transition hover:bg-light-200/60 disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-200/70 dark:bg-dark-secondary dark:text-white dark:hover:bg-dark-200/60"
             >
-              {passwordPending ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Reset password'}
+              {passwordPending ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : account.hasPassword ? (
+                'Reset password'
+              ) : (
+                'Add password'
+              )}
             </button>
           </div>
           <div className="mt-3 text-xs text-black/60 dark:text-white/60">
@@ -667,10 +681,21 @@ type PasswordDialogProps = {
   action: (formData: FormData) => void;
   pending: boolean;
   isCurrentUser: boolean;
+  requireCurrentPassword: boolean;
+  isInitialPassword: boolean;
   state: UpdateUserPasswordActionState | undefined;
 };
 
-function PasswordDialog({ open, onClose, action, pending, isCurrentUser, state }: PasswordDialogProps) {
+function PasswordDialog({
+  open,
+  onClose,
+  action,
+  pending,
+  isCurrentUser,
+  requireCurrentPassword,
+  isInitialPassword,
+  state,
+}: PasswordDialogProps) {
   const [formValues, setFormValues] = useState({
     current: '',
     next: '',
@@ -683,15 +708,31 @@ function PasswordDialog({ open, onClose, action, pending, isCurrentUser, state }
     }
   }, [open]);
 
+  const title = isCurrentUser
+    ? isInitialPassword
+      ? 'Create a password'
+      : 'Update your password'
+    : isInitialPassword
+      ? 'Add a password'
+      : 'Set a new password';
+
+  const description = isCurrentUser
+    ? isInitialPassword
+      ? 'Choose a password so you can sign in with email and password in addition to social login.'
+      : 'Enter your current and new password to update this account.'
+    : isInitialPassword
+      ? 'Create a password for this user. They will be signed out of other sessions.'
+      : 'Set a new password for this user. They will be signed out of other sessions.';
+
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title={isCurrentUser ? 'Update your password' : 'Set a new password'}
-      description={isCurrentUser ? 'Enter your current and new password to update this account.' : 'Create a new password for this user. They will be signed out of other sessions.'}
+      title={title}
+      description={description}
     >
       <form action={action} className="space-y-4">
-        {isCurrentUser && (
+        {requireCurrentPassword && (
           <div className="space-y-2">
             <label htmlFor="currentPassword" className="text-sm font-medium text-black/70 dark:text-white/70">
               Current password
@@ -702,7 +743,7 @@ function PasswordDialog({ open, onClose, action, pending, isCurrentUser, state }
               type="password"
               value={formValues.current}
               onChange={(event) => setFormValues((prev) => ({ ...prev, current: event.target.value }))}
-              required
+              required={requireCurrentPassword}
               className="w-full rounded-lg border border-light-200/70 bg-white px-3 py-2 text-sm text-black outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-dark-200/70 dark:bg-dark-secondary dark:text-white"
             />
           </div>
