@@ -89,7 +89,7 @@ export function AdminUserDetail({
 }: AdminUserDetailProps) {
   const router = useRouter();
   const [user, setUser] = useState<NormalizedUser>(() => normalizeUser(initialUser));
-  const [account] = useState<UserAccountInfo>(initialAccount);
+  const [account, setAccount] = useState<UserAccountInfo>(initialAccount);
   const [stats] = useState<UserStats>(initialStats);
   const [sessions, setSessions] = useState<SerializableSession[]>(initialSessions);
   const [isAvatarUpdating, setIsAvatarUpdating] = useState(false);
@@ -144,6 +144,10 @@ export function AdminUserDetail({
 
       if (result?.success) {
         toast.success(result.message ?? 'Password updated.');
+        setAccount((current) => ({
+          ...current,
+          hasPassword: true,
+        }));
         setPasswordDialogOpen(false);
       } else if (result?.message) {
         toast.error(result.message);
@@ -355,6 +359,7 @@ export function AdminUserDetail({
         action={passwordAction}
         pending={passwordPending}
         isCurrentUser={isCurrentUser}
+        hasPassword={account.hasPassword}
         state={passwordResult}
       />
 
@@ -560,16 +565,24 @@ function AccessCard({
             <div>
               <p className="font-semibold">Password login</p>
               <p className="text-xs text-black/60 dark:text-white/60">
-                {account.hasPassword ? 'Password can be reset.' : 'No password set via email login.'}
+                  {account.hasPassword
+                    ? 'Password can be reset.'
+                    : 'No password set via email login yet.'}
               </p>
             </div>
             <button
               type="button"
               onClick={onOpenPasswordDialog}
-              disabled={!account.hasPassword || passwordPending}
+                disabled={passwordPending}
               className="inline-flex items-center gap-2 rounded-full border border-light-200/70 bg-white px-3 py-1 text-xs font-medium text-black shadow-sm transition hover:bg-light-200/60 disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-200/70 dark:bg-dark-secondary dark:text-white dark:hover:bg-dark-200/60"
             >
-              {passwordPending ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Reset password'}
+                {passwordPending ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : account.hasPassword ? (
+                  'Reset password'
+                ) : (
+                  'Set password'
+                )}
             </button>
           </div>
           <div className="mt-3 text-xs text-black/60 dark:text-white/60">
@@ -667,10 +680,11 @@ type PasswordDialogProps = {
   action: (formData: FormData) => void;
   pending: boolean;
   isCurrentUser: boolean;
+  hasPassword: boolean;
   state: UpdateUserPasswordActionState | undefined;
 };
 
-function PasswordDialog({ open, onClose, action, pending, isCurrentUser, state }: PasswordDialogProps) {
+function PasswordDialog({ open, onClose, action, pending, isCurrentUser, hasPassword, state }: PasswordDialogProps) {
   const [formValues, setFormValues] = useState({
     current: '',
     next: '',
@@ -683,12 +697,23 @@ function PasswordDialog({ open, onClose, action, pending, isCurrentUser, state }
     }
   }, [open]);
 
+  const dialogTitle = isCurrentUser
+    ? 'Update your password'
+    : hasPassword
+      ? 'Reset password'
+      : 'Set a password';
+  const dialogDescription = isCurrentUser
+    ? 'Enter your current and new password to update this account.'
+    : hasPassword
+      ? 'Create a new password for this user. They will be signed out of other sessions.'
+      : 'Create the first password for this user. They will be signed out of other sessions.';
+
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title={isCurrentUser ? 'Update your password' : 'Set a new password'}
-      description={isCurrentUser ? 'Enter your current and new password to update this account.' : 'Create a new password for this user. They will be signed out of other sessions.'}
+      title={dialogTitle}
+      description={dialogDescription}
     >
       <form action={action} className="space-y-4">
         {isCurrentUser && (

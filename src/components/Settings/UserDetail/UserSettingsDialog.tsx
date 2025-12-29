@@ -191,6 +191,17 @@ export function UserSettingsDialog({ open, onClose, user }: DialogProps) {
     if (passwordResult.success) {
       toast.success(passwordResult.message ?? 'Password updated successfully');
       setPasswordState(initialPasswordState);
+      setDetails((current) =>
+        current
+          ? {
+              ...current,
+              account: {
+                ...current.account,
+                hasPassword: true,
+              },
+            }
+          : current,
+      );
     } else if (passwordResult.message) {
       toast.error(passwordResult.message);
     }
@@ -209,6 +220,9 @@ export function UserSettingsDialog({ open, onClose, user }: DialogProps) {
       .map((provider) => provider.replace(/^[a-z]/, (char) => char.toUpperCase()))
       .join(', ');
   }, [details]);
+
+  const hasPassword = details?.account.hasPassword ?? false;
+  const isSecurityFormDisabled = !details || passwordPending;
 
   const stats = details?.stats;
   const createdAt = details?.user.createdAt ?? null;
@@ -451,27 +465,39 @@ export function UserSettingsDialog({ open, onClose, user }: DialogProps) {
                             Security
                           </h3>
                           <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-                            Change your account password. This will sign you out on other devices.
+                            {hasPassword
+                              ? 'Change your account password. This will sign you out on other devices.'
+                              : 'Set a password to enable email sign-in in addition to your linked providers.'}
                           </p>
+                          {!hasPassword && details && (
+                            <p className="mt-2 text-xs text-black/70 dark:text-white/70">
+                              You currently sign in with {accountProvidersLabel}. Setting a password lets you log in with email too.
+                            </p>
+                          )}
+
+                          <input type="hidden" name="isCurrentUser" value="true" />
 
                           <div className="mt-5 grid gap-4">
-                            <label className="text-sm font-medium text-black/70 dark:text-white/70">
-                              Current password
-                              <input
-                                name="currentPassword"
-                                type="password"
-                                value={passwordState.currentPassword}
-                                onChange={(event) =>
-                                  setPasswordState((prev) => ({
-                                    ...prev,
-                                    currentPassword: event.target.value,
-                                  }))
-                                }
-                                className="mt-1 w-full rounded-lg border border-light-200 bg-white px-3 py-2 text-sm text-black outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-dark-200 dark:bg-dark-secondary dark:text-white"
-                                placeholder="Current password"
-                                required
-                              />
-                            </label>
+                            {hasPassword && (
+                              <label className="text-sm font-medium text-black/70 dark:text-white/70">
+                                Current password
+                                <input
+                                  name="currentPassword"
+                                  type="password"
+                                  value={passwordState.currentPassword}
+                                  onChange={(event) =>
+                                    setPasswordState((prev) => ({
+                                      ...prev,
+                                      currentPassword: event.target.value,
+                                    }))
+                                  }
+                                  className="mt-1 w-full rounded-lg border border-light-200 bg-white px-3 py-2 text-sm text-black outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-dark-200 dark:bg-dark-secondary dark:text-white"
+                                  placeholder="Current password"
+                                  required
+                                  disabled={isSecurityFormDisabled}
+                                />
+                              </label>
+                            )}
 
                             <label className="text-sm font-medium text-black/70 dark:text-white/70">
                               New password
@@ -488,6 +514,8 @@ export function UserSettingsDialog({ open, onClose, user }: DialogProps) {
                                 className="mt-1 w-full rounded-lg border border-light-200 bg-white px-3 py-2 text-sm text-black outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-dark-200 dark:bg-dark-secondary dark:text-white"
                                 placeholder="At least 8 characters"
                                 required
+                                disabled={isSecurityFormDisabled}
+                                autoComplete="new-password"
                               />
                             </label>
 
@@ -506,6 +534,8 @@ export function UserSettingsDialog({ open, onClose, user }: DialogProps) {
                                 className="mt-1 w-full rounded-lg border border-light-200 bg-white px-3 py-2 text-sm text-black outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 dark:border-dark-200 dark:bg-dark-secondary dark:text-white"
                                 placeholder="Repeat new password"
                                 required
+                                disabled={isSecurityFormDisabled}
+                                autoComplete="new-password"
                               />
                             </label>
                           </div>
@@ -513,10 +543,10 @@ export function UserSettingsDialog({ open, onClose, user }: DialogProps) {
                           <div className="mt-6 flex justify-end">
                             <button
                               type="submit"
-                              disabled={passwordPending}
+                              disabled={isSecurityFormDisabled}
                               className={cn(
                                 'inline-flex items-center justify-center rounded-lg bg-black px-4 py-2 text-sm font-medium text-white shadow-sm transition dark:bg-white dark:text-black',
-                                passwordPending
+                                isSecurityFormDisabled
                                   ? 'cursor-not-allowed opacity-60'
                                   : 'hover:bg-black/90 dark:hover:bg-white/90',
                               )}
@@ -526,8 +556,10 @@ export function UserSettingsDialog({ open, onClose, user }: DialogProps) {
                                   <Loader2 className="mr-2 size-4 animate-spin" />
                                   Updating…
                                 </>
-                              ) : (
+                              ) : hasPassword ? (
                                 'Update password'
+                              ) : (
+                                'Set password'
                               )}
                             </button>
                           </div>
