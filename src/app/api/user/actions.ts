@@ -135,15 +135,10 @@ export async function updateUserPasswordAction(
     };
   }
 
-  if (!accountInfo.hasPassword) {
-    return {
-      success: false,
-      message: 'Password updates are not available for social accounts',
-      errorCode: UpdateUserPasswordError.INVALID_ACCOUNT,
-    };
-  }
+  const hasPassword = accountInfo.hasPassword;
+  const requiresCurrentPassword = isCurrentUser && hasPassword;
 
-  if (isCurrentUser && !parsed.data.currentPassword) {
+  if (requiresCurrentPassword && !parsed.data.currentPassword) {
     return {
       success: false,
       message: 'Current password is required',
@@ -154,7 +149,7 @@ export async function updateUserPasswordAction(
   try {
     const requestHeaders = await headers();
 
-    if (isCurrentUser) {
+    if (requiresCurrentPassword) {
       await auth.api.changePassword({
         body: {
           currentPassword: parsed.data.currentPassword!,
@@ -171,17 +166,22 @@ export async function updateUserPasswordAction(
           newPassword: parsed.data.newPassword,
         },
         headers: requestHeaders,
+        returnHeaders: isCurrentUser,
       });
 
-      await auth.api.revokeUserSessions({
-        body: { userId: targetUserId },
-        headers: requestHeaders,
-      });
+      if (!isCurrentUser) {
+        await auth.api.revokeUserSessions({
+          body: { userId: targetUserId },
+          headers: requestHeaders,
+        });
+      }
     }
 
     return {
       success: true,
-      message: 'Password updated successfully',
+      message: hasPassword
+        ? 'Password updated successfully'
+        : 'Password created successfully',
     };
   } catch (error) {
     console.error('Failed to update password', error);

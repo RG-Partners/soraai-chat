@@ -42,7 +42,6 @@ export const DeleteUserSchema = z.object({
 
 export enum UpdateUserPasswordError {
   PASSWORD_MISMATCH = 'PASSWORD_MISMATCH',
-  INVALID_ACCOUNT = 'INVALID_ACCOUNT',
   UNKNOWN = 'UNKNOWN',
 }
 
