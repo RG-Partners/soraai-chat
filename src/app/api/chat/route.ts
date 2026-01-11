@@ -13,6 +13,7 @@ import { ModelWithProvider } from '@/lib/models/types';
 import { getSessionFromRequest } from '@/lib/auth/session';
 import { getEntitlementForSession } from '@/lib/entitlements';
 import logger from '@/lib/logger';
+import logUsageEvent, { serializeErrorForAnalytics } from '@/lib/analytics/events';
 
 type ChatRecord = typeof chats.$inferSelect;
 
@@ -109,17 +110,38 @@ const safeValidateBody = (data: unknown) => {
   };
 };
 
+type StreamEventCallbacks = {
+  onComplete?: (payload: {
+    messageId: string;
+    receivedMessage: string;
+    sourcesCount: number;
+    hasAssistantResponse: boolean;
+  }) => void;
+  onError?: (payload: { error: unknown }) => void;
+};
+
 const handleEmitterEvents = async (
   stream: EventEmitter,
   writer: WritableStreamDefaultWriter,
   encoder: TextEncoder,
   chatId: string,
+  callbacks?: StreamEventCallbacks,
 ) => {
   let receivedMessage = '';
   const aiMessageId = crypto.randomBytes(7).toString('hex');
   let hasAssistantResponse = false;
   let encounteredError = false;
   let writerClosed = false;
+  let sourcesCount = 0;
+  let errorReported = false;
+
+  const reportError = (errorPayload: unknown) => {
+    if (errorReported) {
+      return;
+    }
+    errorReported = true;
+    callbacks?.onError?.({ error: errorPayload });
+  };
 
   const writeEvent = (payload: Record<string, unknown>) => {
     if (writerClosed) {
@@ -153,6 +175,10 @@ const handleEmitterEvents = async (
         messageId: aiMessageId,
       });
 
+      if (Array.isArray(parsedData.data)) {
+        sourcesCount += parsedData.data.length;
+      }
+
       const sourceMessageId = crypto.randomBytes(7).toString('hex');
 
       db.insert(messagesSchema)
@@ -170,6 +196,7 @@ const handleEmitterEvents = async (
         type: 'error',
         data: parsedData.data,
       });
+      reportError(parsedData.data ?? parsedData);
       closeWriter();
     }
   });
@@ -196,6 +223,13 @@ const handleEmitterEvents = async (
         })
         .execute();
     }
+
+    callbacks?.onComplete?.({
+      messageId: aiMessageId,
+      receivedMessage,
+      sourcesCount,
+      hasAssistantResponse,
+    });
   });
   stream.on('error', (data) => {
     encounteredError = true;
@@ -212,6 +246,7 @@ const handleEmitterEvents = async (
       data: errorPayload,
     });
     closeWriter();
+    reportError(errorPayload);
   });
 };
 
@@ -280,6 +315,19 @@ const handleHistorySave = async (
 
 export const POST = async (req: Request) => {
   const requestStartTime = Date.now();
+  let sessionUserId: string | null = null;
+  let analyticsErrorLogged = false;
+  const analyticsContext: {
+    chatId?: string;
+    focusMode?: string;
+    providerId?: string;
+    modelKey?: string;
+    embeddingProviderId?: string;
+    embeddingModelKey?: string;
+    optimizationMode?: string;
+    fileCount?: number;
+    baseMessageCount?: number;
+  } = {};
   try {
     const session = await getSessionFromRequest(req);
 
@@ -291,6 +339,7 @@ export const POST = async (req: Request) => {
     }
 
     const userId = session.user.id;
+    sessionUserId = userId;
     const { entitlement } = getEntitlementForSession(session);
 
     if (entitlement.maxMessagesPerDay !== null && userId) {
@@ -303,6 +352,15 @@ export const POST = async (req: Request) => {
       });
 
       if (sentMessagesCount >= entitlement.maxMessagesPerDay) {
+        void logUsageEvent({
+          eventType: 'chat_rate_limited',
+          userId,
+          isError: true,
+          metadata: {
+            limit: entitlement.maxMessagesPerDay,
+            sentMessages: sentMessagesCount,
+          },
+        });
         return Response.json(MESSAGE_RATE_LIMIT_ERROR, { status: 429 });
       }
     }
@@ -311,6 +369,16 @@ export const POST = async (req: Request) => {
 
     const parseBody = safeValidateBody(reqBody);
     if (!parseBody.success) {
+      void logUsageEvent({
+        eventType: 'chat_error',
+        userId,
+        isError: true,
+        metadata: {
+          reason: 'invalid_request_body',
+          issues: parseBody.error,
+        },
+      });
+      analyticsErrorLogged = true;
       return Response.json(
         { message: 'Invalid request body', error: parseBody.error },
         { status: 400 },
@@ -319,6 +387,16 @@ export const POST = async (req: Request) => {
 
     const body = parseBody.data as Body;
     const { message } = body;
+
+    analyticsContext.chatId = message.chatId;
+    analyticsContext.focusMode = body.focusMode;
+    analyticsContext.providerId = body.chatModel.providerId;
+    analyticsContext.modelKey = body.chatModel.key;
+    analyticsContext.embeddingProviderId = body.embeddingModel.providerId;
+    analyticsContext.embeddingModelKey = body.embeddingModel.key;
+    analyticsContext.optimizationMode = body.optimizationMode;
+    analyticsContext.fileCount = body.files.length;
+    analyticsContext.baseMessageCount = body.history.length + 1;
 
     const existingChat = await db.query.chats.findFirst({
       where: eq(chats.id, message.chatId),
@@ -329,6 +407,24 @@ export const POST = async (req: Request) => {
     }
 
     if (message.content === '') {
+      void logUsageEvent({
+        eventType: 'chat_error',
+        userId,
+        chatId: message.chatId,
+        focusMode: body.focusMode,
+        providerId: body.chatModel.providerId,
+        modelKey: body.chatModel.key,
+        embeddingProviderId: body.embeddingModel.providerId,
+        embeddingModelKey: body.embeddingModel.key,
+        optimizationMode: body.optimizationMode,
+        messageCount: analyticsContext.baseMessageCount ?? 0,
+        fileCount: body.files.length,
+        isError: true,
+        metadata: {
+          reason: 'empty_message',
+        },
+      });
+      analyticsErrorLogged = true;
       return Response.json(
         {
           message: 'Please provide a message to process',
@@ -374,6 +470,24 @@ export const POST = async (req: Request) => {
     const handler = searchHandlers[body.focusMode];
 
     if (!handler) {
+      void logUsageEvent({
+        eventType: 'chat_error',
+        userId,
+        chatId: message.chatId,
+        focusMode: body.focusMode,
+        providerId: body.chatModel.providerId,
+        modelKey: body.chatModel.key,
+        embeddingProviderId: body.embeddingModel.providerId,
+        embeddingModelKey: body.embeddingModel.key,
+        optimizationMode: body.optimizationMode,
+        messageCount: analyticsContext.baseMessageCount ?? 0,
+        fileCount: body.files.length,
+        isError: true,
+        metadata: {
+          reason: 'invalid_focus_mode',
+        },
+      });
+      analyticsErrorLogged = true;
       return Response.json(
         {
           message: 'Invalid focus mode',
@@ -403,7 +517,58 @@ export const POST = async (req: Request) => {
     const writer = responseStream.writable.getWriter();
     const encoder = new TextEncoder();
 
-    handleEmitterEvents(stream, writer, encoder, message.chatId);
+    const baseMessageCount = analyticsContext.baseMessageCount ?? body.history.length + 1;
+
+    handleEmitterEvents(stream, writer, encoder, message.chatId, {
+      onComplete: ({ receivedMessage, sourcesCount, hasAssistantResponse }) => {
+        if (analyticsErrorLogged) {
+          return;
+        }
+
+        const responseTimeMs = Date.now() - requestStartTime;
+        void logUsageEvent({
+          eventType: 'chat_response',
+          userId,
+          chatId: message.chatId,
+          focusMode: body.focusMode,
+          providerId: body.chatModel.providerId,
+          modelKey: body.chatModel.key,
+          embeddingProviderId: body.embeddingModel.providerId,
+          embeddingModelKey: body.embeddingModel.key,
+          optimizationMode: body.optimizationMode,
+          responseTimeMs,
+          messageCount: baseMessageCount + (hasAssistantResponse ? 1 : 0),
+          messageChars: receivedMessage.length,
+          sourceCount: sourcesCount,
+          fileCount: body.files.length,
+          metadata: {
+            systemInstructionsIncluded: Boolean(body.systemInstructions),
+          },
+        });
+      },
+      onError: ({ error }) => {
+        analyticsErrorLogged = true;
+        const responseTimeMs = Date.now() - requestStartTime;
+        void logUsageEvent({
+          eventType: 'chat_error',
+          userId,
+          chatId: message.chatId,
+          focusMode: body.focusMode,
+          providerId: body.chatModel.providerId,
+          modelKey: body.chatModel.key,
+          embeddingProviderId: body.embeddingModel.providerId,
+          embeddingModelKey: body.embeddingModel.key,
+          optimizationMode: body.optimizationMode,
+          responseTimeMs,
+          messageCount: baseMessageCount,
+          fileCount: body.files.length,
+          isError: true,
+          metadata: {
+            reason: serializeErrorForAnalytics(error),
+          },
+        });
+      },
+    });
     handleHistorySave(
       existingChat,
       message,
@@ -422,6 +587,26 @@ export const POST = async (req: Request) => {
     });
   } catch (err) {
     chatLogger.error('Failed to process chat request.', err);
+    if (!analyticsErrorLogged) {
+      void logUsageEvent({
+        eventType: 'chat_error',
+        userId: sessionUserId ?? undefined,
+        chatId: analyticsContext.chatId,
+        focusMode: analyticsContext.focusMode,
+        providerId: analyticsContext.providerId,
+        modelKey: analyticsContext.modelKey,
+        embeddingProviderId: analyticsContext.embeddingProviderId,
+        embeddingModelKey: analyticsContext.embeddingModelKey,
+        optimizationMode: analyticsContext.optimizationMode,
+        messageCount: analyticsContext.baseMessageCount ?? 0,
+        fileCount: analyticsContext.fileCount ?? 0,
+        isError: true,
+        metadata: {
+          reason: serializeErrorForAnalytics(err),
+        },
+      });
+      analyticsErrorLogged = true;
+    }
     return Response.json(
       { message: 'An error occurred while processing chat request' },
       { status: 500 },
