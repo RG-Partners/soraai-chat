@@ -13,7 +13,7 @@ Sora AI is the **Rwanda tax compliance chatbot** for founders, accountants, and 
 
 - [Sora AI Tax Chatbot](#sora-ai-tax-chatbot)
   - [Highlights](#highlights)
-  - [Screenshots](#screenshots)
+  - [Assets](#assets)
     - [3. Configure environment](#3-configure-environment)
     - [4. Run locally](#4-run-locally)
     - [5. Seed an admin (optional)](#5-seed-an-admin-optional)
@@ -43,14 +43,13 @@ Sora AI is the **Rwanda tax compliance chatbot** for founders, accountants, and 
 - 🧾 **EBM validator** — Parse invoice PDFs, decode QR payloads, and reconcile seller/buyer TINs and VAT totals.
 - 🧑‍💼 **Admin & analytics** — Fine-grained roles (guest, member, editor, admin), usage dashboards, and per-tier rate limits.
 
-## Screenshots
+## Assets
 
-| Chat Copilot | Tax Briefings | Detailed Updates |
+| Chat Workspace | Tax Briefings | Tax Deadlines |
 | --- | --- | --- |
-| Postgres | Chats, users, analytics | Neon, Supabase, Railway |
-| Storage | File uploads and embeddings | Vercel Blob (default), S3, R2 |
-| Redis (optional) | Caching and rate limiting | Upstash |
-| SearxNG | Federated search queries | Fly.io or any container service |
+| ![Chat interface showcasing cited answers](.assets/chat_interface.png) | ![Briefings news feed highlighting policy updates](.assets/briefings_news.png) | ![Briefings tab showing tax alerts and deadlines](.assets/briefings_taxupdates.png) |
+
+Captured from the production UI to illustrate the conversational workspace, curated briefings, and compliance timelines available to finance teams.
 
 ### 3. Configure environment
 
