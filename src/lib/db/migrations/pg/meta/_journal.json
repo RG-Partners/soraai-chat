@@ -36,6 +36,13 @@
       "when": 1764600000000,
       "tag": "0004_add-anonymous-flag",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1767269284054,
+      "tag": "0005_sloppy_marvel_zombies",
+      "breakpoints": true
     }
   ]
 }

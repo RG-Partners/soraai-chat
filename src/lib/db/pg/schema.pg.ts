@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  integer,
   jsonb,
   pgTable,
   serial,
@@ -224,5 +225,42 @@ export const mcpOAuthSessions = pgTable(
   (table) => ({
     serverIdIdx: index('mcp_oauth_session_server_id_idx').on(table.mcpServerId),
     stateIdx: index('mcp_oauth_session_state_idx').on(table.state),
+  }),
+);
+
+export const usageEvents = pgTable(
+  'usage_events',
+  {
+    id: serial('id').primaryKey(),
+    eventType: text('event_type').notNull(),
+    userId: uuid('user_id').references(() => users.id, {
+      onDelete: 'cascade',
+    }),
+    chatId: text('chat_id'),
+    focusMode: text('focus_mode'),
+    providerId: text('provider_id'),
+    modelKey: text('model_key'),
+    embeddingProviderId: text('embedding_provider_id'),
+    embeddingModelKey: text('embedding_model_key'),
+    optimizationMode: text('optimization_mode'),
+    responseTimeMs: integer('response_time_ms'),
+    messageCount: integer('message_count').notNull().default(0),
+    messageChars: integer('message_chars').notNull().default(0),
+    sourceCount: integer('source_count').notNull().default(0),
+    fileCount: integer('file_count').notNull().default(0),
+    isError: boolean('is_error').notNull().default(false),
+    metadata: jsonb('metadata')
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    createdAt: timestamp('created_at')
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    createdAtIdx: index('usage_events_created_at_idx').on(table.createdAt),
+    userIdIdx: index('usage_events_user_id_idx').on(table.userId),
+    eventTypeIdx: index('usage_events_event_type_idx').on(table.eventType),
+    chatIdIdx: index('usage_events_chat_id_idx').on(table.chatId),
   }),
 );
