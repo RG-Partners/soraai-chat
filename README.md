@@ -47,7 +47,7 @@ Sora AI is the **Rwanda tax compliance chatbot** for founders, accountants, and 
 
 | Chat Workspace | Tax Briefings | Tax Deadlines |
 | --- | --- | --- |
-| ![Chat interface showcasing cited answers](.assets/chat_interface.png) | ![Briefings news feed highlighting policy updates](.assets/briefings_news.png) | ![Briefings tab showing tax alerts and deadlines](.assets/briefings_taxupdates.png) |
+| ![Chat interface showcasing cited answers](./.assets/chat_interface.png) | ![Briefings news feed highlighting policy updates](./.assets/briefings_news.png) | ![Briefings tab showing tax alerts and deadlines](./.assets/briefings_taxupdates.png) |
 
 Captured from the production UI to illustrate the conversational workspace, curated briefings, and compliance timelines available to finance teams.
 
