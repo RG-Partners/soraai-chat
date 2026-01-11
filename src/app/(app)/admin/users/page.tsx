@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { AdminUsersTable } from '@/components/admin/AdminUsersTable';
 import { getAdminUsers, requireAdminSession } from '@/lib/admin/server';
 import type { AdminUsersSortField } from '@/types/admin';
+import AdminNavigation from '@/components/admin/AdminNavigation';
 
 const MAX_PAGE_SIZE = 50;
 const DEFAULT_LIMIT = 10;
@@ -59,9 +60,7 @@ const parseSortDirection = (value?: string | string[]): 'asc' | 'desc' => {
 
 export default async function AdminUsersPage({ searchParams }: AdminUsersPageProps) {
   const session = await requireAdminSession();
-  const resolvedSearchParams = searchParams
-    ? await searchParams
-    : undefined;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
   const query = resolvedSearchParams?.query;
   const pageParam = parseNumberParam(resolvedSearchParams?.page);
@@ -83,6 +82,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
 
   return (
     <section className="space-y-6">
+      <AdminNavigation />
       <div>
         <h1 className="text-2xl font-semibold text-black dark:text-white">Users</h1>
         <p className="text-sm text-black/60 dark:text-white/60">
